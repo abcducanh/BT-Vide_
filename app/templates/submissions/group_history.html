@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Submission History{% endblock %}
+{% block content %}
+  <h3>Lịch sử nộp bài</h3>
+  <p class="text-muted">
+    Group: {{ group.name }} ({{ group.id }}) |
+    Assignment: <a href="{{ url_for('assignments.detail_assignment', assignment_id=assignment.id) }}">{{ assignment.title }}</a>
+    | Deadline: {{ assignment.deadline_at }}
+  </p>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Submission ID</th>
+        <th>Submitted at</th>
+        <th>Status</th>
+        <th>Link</th>
+        <th>Files</th>
+        <th>Grade</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in submissions %}
+        <tr>
+          <td>{{ s.id }}</td>
+          <td>{{ s.submitted_at }}</td>
+          <td>
+            {% if is_late(s.submitted_at, assignment.deadline_at) %}
+              <span class="badge bg-danger">Trễ</span>
+            {% else %}
+              <span class="badge bg-success">Đúng hạn</span>
+            {% endif %}
+          </td>
+          <td>{% if s.link_url %}<a href="{{ s.link_url }}" target="_blank">Open</a>{% else %}-{% endif %}</td>
+          <td>
+            {% set fl = file_map.get(s.id, []) %}
+            {% if fl %}
+              {% for f in fl %}
+                <div class="small"><a href="{{ url_for('files.download_submission_file', file_id=f.id) }}">⬇ {{ f.original_name }}</a> <span class="text-muted">({{ f.size }} bytes)</span></div>
+              {% endfor %}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>
+            {% set gr = grade_map.get(s.id) %}
+            {% if gr %}
+              <div><b>{{ gr.score }}</b></div>
+              <div class="small text-muted" style="white-space: pre-wrap;">{{ gr.feedback }}</div>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="text-muted">Chưa có submission.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

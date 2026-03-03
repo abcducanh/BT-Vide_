@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Groups{% endblock %}
+{% block content %}
+  <h3>Groups</h3>
+  <ul class="list-group mt-3">
+    {% for g in groups %}
+      <li class="list-group-item d-flex justify-content-between">
+        <a href="{{ url_for('groups.detail_group', group_id=g.id) }}">{{ g.name }}</a>
+        <span class="text-muted">ID: {{ g.id }} | course_id: {{ g.course_id }}</span>
+      </li>
+    {% else %}
+      <li class="list-group-item text-muted">Chưa có nhóm.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

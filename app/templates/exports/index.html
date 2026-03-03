@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Exports{% endblock %}
+{% block content %}
+  <h3>Export</h3>
+  <p class="text-muted">Chọn assignment để export Excel.</p>
+
+  <ul class="list-group">
+    {% for a in assignments %}
+      <li class="list-group-item d-flex justify-content-between">
+        <div>
+          <b>{{ a.title }}</b>
+          <div class="small text-muted">Assignment ID: {{ a.id }} | Course ID: {{ a.course_id }}</div>
+        </div>
+        <a class="btn btn-sm btn-outline-success" href="{{ url_for('exports.export_assignment_xlsx', assignment_id=a.id) }}">Export .xlsx</a>
+      </li>
+    {% else %}
+      <li class="list-group-item text-muted">Chưa có assignment.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

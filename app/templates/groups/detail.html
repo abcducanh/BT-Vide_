@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Group Detail{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-start">
+    <div>
+      <h3 class="mb-1">{{ group.name }}</h3>
+      <div class="text-muted">
+        Group ID: {{ group.id }} |
+        Course: <a href="{{ url_for('courses.detail_course', course_id=course.id) }}">{{ course.code }} — {{ course.name }}</a> |
+        Leader ID: {{ group.leader_id }}
+      </div>
+    </div>
+
+    <div class="text-end">
+      <span class="badge bg-secondary">
+        {{ current_size }} / {{ course.max_group_size if course.max_group_size > 0 else "∞" }} thành viên
+      </span>
+    </div>
+  </div>
+
+  <div class="alert alert-secondary mt-3 py-2">
+    <b>Quy định lớp:</b>
+    tối đa <b>{{ course.max_group_size if course.max_group_size > 0 else "∞" }}</b> người/nhóm,
+    mỗi học sinh chỉ được thuộc <b>1 nhóm</b> trong lớp này.
+  </div>
+
+  <h5 class="mt-3">Members</h5>
+  <ul class="list-group">
+    {% for m in members %}
+      <li class="list-group-item d-flex justify-content-between">
+        <span>{{ m.name }} — {{ m.email }}</span>
+        <span class="text-muted">User ID: {{ m.id }}</span>
+      </li>
+    {% else %}
+      <li class="list-group-item text-muted">Chưa có thành viên.</li>
+    {% endfor %}
+  </ul>
+
+  {% if can_manage %}
+    <hr class="my-4">
+
+    {% if is_full %}
+      <div class="alert alert-warning">
+        Nhóm đã đủ số lượng tối đa ({{ course.max_group_size }}). Không thể thêm thành viên mới.
+      </div>
+    {% endif %}
+
+    <h5>Thêm thành viên</h5>
+    <div class="small text-muted mb-2">
+      Nhập email sinh viên trong lớp. Nếu sinh viên đã có nhóm khác, hệ thống sẽ báo lỗi.
+    </div>
+
+    <form method="post" action="{{ url_for('groups.add_member', group_id=group.id) }}" class="row g-2">
+      {{ add_form.hidden_tag() }}
+      <div class="col-md-8">
+        {{ add_form.email(class="form-control", placeholder="email@domain.com", disabled=is_full) }}
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-outline-primary w-100" {% if is_full %}disabled{% endif %}>Thêm</button>
+      </div>
+    </form>
+
+    {% if current_user.role == 'STUDENT' %}
+      <div class="form-text text-muted mt-2">
+        Bạn là <b>trưởng nhóm</b> nên có thể thêm thành viên. (Sinh viên phải được giáo viên enroll vào lớp trước.)
+      </div>
+    {% else %}
+      <div class="form-text text-muted mt-2">
+        Giáo viên có thể thêm thành viên; nếu sinh viên chưa enroll lớp, hệ thống sẽ tự enroll.
+      </div>
+    {% endif %}
+
+  {% else %}
+    {% if current_user.role == 'STUDENT' %}
+      <div class="alert alert-info mt-4">
+        Chỉ <b>trưởng nhóm</b> mới có quyền thêm thành viên.
+      </div>
+    {% endif %}
+  {% endif %}
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Grading{% endblock %}
+{% block content %}
+  <h3>Chấm điểm submission #{{ submission.id }}</h3>
+  <p class="text-muted">
+    Course: {{ course.code }} | Assignment: {{ assignment.title }} | Group ID: {{ submission.group_id }}
+  </p>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div><b>Link:</b> {% if submission.link_url %}<a href="{{ submission.link_url }}" target="_blank">{{ submission.link_url }}</a>{% else %}-{% endif %}</div>
+      <div class="mt-2"><b>Note:</b> <div style="white-space: pre-wrap;">{{ submission.note or "-" }}</div></div>
+      <hr>
+      <div><b>Files:</b></div>
+      {% if files %}
+        {% for f in files %}
+          <div class="small"><a href="{{ url_for('files.download_submission_file', file_id=f.id) }}">⬇ {{ f.original_name }}</a> <span class="text-muted">({{ f.size }} bytes)</span></div>
+        {% endfor %}
+      {% else %}
+        <div class="text-muted">Không có file</div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if grade and grade.return_file_path %}
+    <div class="mb-3">
+      <a class="btn btn-sm btn-outline-success" href="{{ url_for('files.download_return_file', submission_id=submission.id) }}">⬇ Tải file trả lời</a>
+    </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+      <label class="form-label">Điểm</label>
+      {{ form.score(class="form-control") }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Nhận xét</label>
+      {{ form.feedback(class="form-control", rows="5") }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">File trả lời (optional)</label>
+      <input class="form-control" type="file" name="return_file">
+    </div>
+    <button class="btn btn-success">Lưu chấm điểm</button>
+  </form>
+{% endblock %}

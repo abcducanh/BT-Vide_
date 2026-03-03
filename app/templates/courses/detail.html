@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Course Detail{% endblock %}
+{% block content %}
+  <h3>{{ course.code }} — {{ course.name }}</h3>
+  <p class="text-muted">Course ID: {{ course.id }}</p>
+
+  {# ===== Group constraints summary ===== #}
+  <div class="alert alert-secondary py-2">
+    <b>Quy định nhóm:</b>
+    Tối đa <b>{{ course.max_group_size if course.max_group_size > 0 else "∞" }}</b> người/nhóm,
+    tối đa <b>{{ course.max_groups if course.max_groups > 0 else "∞" }}</b> nhóm/lớp.
+    <span class="text-muted">(Hiện có {{ groups_count }} nhóm)</span>
+  </div>
+
+  {% if current_user.role == 'TEACHER' %}
+
+  {% if settings_form %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title mb-2">Cài đặt nhóm cho lớp</h5>
+      <form method="post" action="{{ url_for('courses.update_course_settings', course_id=course.id) }}" class="row g-2">
+        {{ settings_form.hidden_tag() }}
+        <div class="col-md-4">
+          <label class="form-label small">Số người tối đa / nhóm</label>
+          {{ settings_form.max_group_size(class="form-control") }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small">Số nhóm tối đa / lớp</label>
+          {{ settings_form.max_groups(class="form-control") }}
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <button class="btn btn-outline-primary w-100">Lưu cài đặt</button>
+        </div>
+        <div class="form-text text-muted">Nhập <b>0</b> nếu không giới hạn.</div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-md-6">
+      <h5>Nhập danh sách lớp từ Excel</h5>
+      <div class="small text-muted mb-2">
+        File .xlsx (sheet đầu): cột <b>email</b> (bắt buộc), tùy chọn <b>name</b>, <b>password</b>.
+      </div>
+      <form method="post" action="{{ url_for('courses.import_students_excel', course_id=course.id) }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="input-group">
+          <input class="form-control" type="file" name="excel" accept=".xlsx">
+          <button class="btn btn-outline-primary">Upload</button>
+        </div>
+      </form>
+
+      <hr class="my-3">
+
+      <h6>Danh sách sinh viên (đã enroll)</h6>
+      <ul class="list-group">
+        {% for s in enrolled_students %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{{ s.name }} — {{ s.email }}</span>
+            <span class="text-muted">ID: {{ s.id }}</span>
+          </li>
+        {% else %}
+          <li class="list-group-item text-muted">Chưa có sinh viên</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="col-md-6">
+      <h5>Nhóm</h5>
+      <div class="small text-muted mb-2">Nhóm do học sinh tạo. ({{ groups_count }} nhóm)</div>
+      <ul class="list-group">
+        {% for g in groups %}
+          <li class="list-group-item d-flex justify-content-between">
+            <a href="{{ url_for('groups.detail_group', group_id=g.id) }}">{{ g.name }}</a>
+            <span class="text-muted">ID: {{ g.id }} | leader: {{ g.leader_id }}</span>
+          </li>
+        {% else %}
+          <li class="list-group-item text-muted">Chưa có nhóm</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <hr class="my-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <h5>Bài tập</h5>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('assignments.create_assignment', course_id=course.id) }}">+ Tạo bài</a>
+  </div>
+
+  <ul class="list-group mt-2">
+    {% for a in assignments %}
+      <li class="list-group-item d-flex justify-content-between">
+        <a href="{{ url_for('assignments.detail_assignment', assignment_id=a.id) }}">{{ a.title }}</a>
+        <span class="text-muted">Deadline: {{ a.deadline_at }}</span>
+      </li>
+    {% else %}
+      <li class="list-group-item text-muted">Chưa có bài tập</li>
+    {% endfor %}
+  </ul>
+
+  {% else %}
+  {# ===== STUDENT ===== #}
+  {% set reached_max_groups = (course.max_groups > 0 and groups_count >= course.max_groups) %}
+
+  <div class="row">
+    <div class="col-md-6">
+      <h5>Nhóm của bạn</h5>
+
+      {% if my_group %}
+        <div class="alert alert-success">
+          Bạn đang thuộc nhóm: <b><a href="{{ url_for('groups.detail_group', group_id=my_group.id) }}">{{ my_group.name }}</a></b>
+          <span class="text-muted">(ID: {{ my_group.id }})</span>
+        </div>
+      {% else %}
+        {% if reached_max_groups %}
+          <div class="alert alert-warning">
+            Lớp đã đạt số nhóm tối đa ({{ course.max_groups }}). Bạn không thể tạo thêm nhóm mới.
+          </div>
+        {% endif %}
+
+        <h6 class="mt-2">Tạo nhóm</h6>
+        <form method="post" action="{{ url_for('groups.create_group') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="course_id" value="{{ course.id }}">
+          <div class="input-group">
+            <input class="form-control" name="name" placeholder="Tên nhóm của bạn" {% if reached_max_groups %}disabled{% endif %}>
+            <button class="btn btn-outline-success" {% if reached_max_groups %}disabled{% endif %}>Create</button>
+          </div>
+          <div class="form-text">Sau khi tạo, bạn sẽ tự động là trưởng nhóm và là thành viên.</div>
+        </form>
+
+        <div class="small text-muted mt-2">
+          Gợi ý: sau khi tạo nhóm, vào trang nhóm để <b>thêm thành viên</b>. Mỗi học sinh chỉ được thuộc <b>1 nhóm</b> trong lớp.
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-6">
+      <h5>Bài tập</h5>
+      <ul class="list-group mt-2">
+        {% for a in assignments %}
+          <li class="list-group-item d-flex justify-content-between">
+            <a href="{{ url_for('assignments.detail_assignment', assignment_id=a.id) }}">{{ a.title }}</a>
+            <span class="text-muted">Deadline: {{ a.deadline_at }}</span>
+          </li>
+        {% else %}
+          <li class="list-group-item text-muted">Chưa có bài tập</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+{% endblock %}

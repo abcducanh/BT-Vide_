@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Create Course{% endblock %}
+{% block content %}
+  <h3>Tạo course</h3>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+      <label class="form-label">Mã</label>
+      {{ form.code(class="form-control") }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Tên</label>
+      {{ form.name(class="form-control") }}
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Số người tối đa / nhóm</label>
+        {{ form.max_group_size(class="form-control") }}
+        <div class="form-text">Nhập <b>0</b> nếu không giới hạn. (Ví dụ: 5)</div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Số nhóm tối đa trong lớp</label>
+        {{ form.max_groups(class="form-control") }}
+        <div class="form-text">Nhập <b>0</b> nếu không giới hạn. (Ví dụ: 10)</div>
+      </div>
+    </div>
+
+    <button class="btn btn-success" type="submit">Lưu</button>
+    <a class="btn btn-secondary" href="{{ url_for('courses.list_courses') }}">Huỷ</a>
+  </form>
+{% endblock %}

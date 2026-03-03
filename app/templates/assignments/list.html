@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Assignments{% endblock %}
+{% block content %}
+  <h3>Assignments — {{ course.code }} ({{ course.id }})</h3>
+  <ul class="list-group mt-3">
+    {% for a in assignments %}
+      <li class="list-group-item d-flex justify-content-between">
+        <a href="{{ url_for('assignments.detail_assignment', assignment_id=a.id) }}">{{ a.title }}</a>
+        <span class="text-muted">{{ a.deadline_at }}</span>
+      </li>
+    {% else %}
+      <li class="list-group-item text-muted">Chưa có bài tập.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

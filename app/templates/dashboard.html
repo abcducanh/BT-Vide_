@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+  <div class="p-4 bg-light rounded">
+    <h3>Dashboard</h3>
+    <p>Chào {{ current_user.name }} ({{ current_user.role }})</p>
+    <ul>
+      <li><a href="{{ url_for('courses.list_courses') }}">Đi tới Courses</a></li>
+      <li><a href="{{ url_for('auth.login') }}">Login</a> (nếu chưa login)</li>
+      {% if current_user.role == 'TEACHER' %}
+        <li><a href="{{ url_for('exports.export_index') }}">Export</a></li>
+      {% endif %}
+    </ul>
+  </div>
+{% endblock %}

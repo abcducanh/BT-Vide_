@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Create Assignment{% endblock %}
+{% block content %}
+  <h3>Tạo bài tập</h3>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    {{ form.course_id(type="hidden") }}
+
+    <div class="mb-3">
+      <label class="form-label">Tiêu đề</label>
+      {{ form.title(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Mô tả</label>
+      {{ form.description(class="form-control", rows="4") }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Deadline</label>
+      {{ form.deadline_at(class="form-control") }}
+      <div class="form-text">Chọn ngày giờ (local)</div>
+    </div>
+
+    <button class="btn btn-success" type="submit">Lưu</button>
+    <a class="btn btn-secondary" href="{{ url_for('courses.list_courses') }}">Huỷ</a>
+  </form>
+{% endblock %}

@@ -1,0 +1,7 @@
+body { background: #0b0f14; }
+.container { color: #e7eef7; }
+.bg-light { color: #0b0f14 !important; }
+.card { background: #0f1621; color: #e7eef7; border: 1px solid rgba(255,255,255,.08); }
+.table { color: #e7eef7; }
+.list-group-item { background: #0f1621; color: #e7eef7; border-color: rgba(255,255,255,.08); }
+a { text-decoration: none; }

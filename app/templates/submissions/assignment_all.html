@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}All Submissions{% endblock %}
+{% block content %}
+  <h3>All submissions — {{ assignment.title }}</h3>
+  <p class="text-muted">
+    Course: {{ course.code }} | Deadline: {{ assignment.deadline_at }}
+  </p>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Group</th>
+        <th>Latest submission</th>
+        <th>Status</th>
+        <th>Grade</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for g in groups %}
+        {% set s = latest.get(g.id) %}
+        <tr>
+          <td>{{ g.name }} ({{ g.id }})</td>
+          <td>{% if s %}{{ s.id }} — {{ s.submitted_at }}{% else %}-{% endif %}</td>
+          <td>
+            {% if s %}
+              {% if is_late(s.submitted_at, assignment.deadline_at) %}
+                <span class="badge bg-danger">Trễ</span>
+              {% else %}
+                <span class="badge bg-success">Đúng hạn</span>
+              {% endif %}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>
+            {% if s and grade_map.get(s.id) %}
+              {{ grade_map.get(s.id).score }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>
+            {% if s %}
+              <a class="btn btn-sm btn-outline-primary" href="{{ url_for('grading.grade_page', submission_id=s.id) }}">Chấm</a>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
