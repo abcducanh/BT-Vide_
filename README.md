@@ -26,12 +26,14 @@ Export báo cáo CSV/Excel (openpyxl)
 
 2) Cài đặt (Windows)
 Bước 1 — Tạo môi trường và cài thư viện
+
 cd mvp_groupwork_v3
 py -m venv .venv
 .venv\Scripts\activate
 
 pip install -r requirements.txt
 copy .env.example .env
+
 Bước 2 — Khởi tạo Database (Flask-Migrate)
 
 Chỉ chạy db init 1 lần khi setup project lần đầu.
@@ -39,10 +41,13 @@ Chỉ chạy db init 1 lần khi setup project lần đầu.
 python -m flask --app run.py db init
 python -m flask --app run.py db migrate -m "init"
 python -m flask --app run.py db upgrade
+
 Bước 3 — Seed tài khoản từ Excel (GV + 70 HS)
 python -m flask --app run.py seed-users
+
 Bước 4 — Chạy ứng dụng
 python run.py
+
 3) Seed tài khoản từ Excel
 
 Các file seed nằm trong thư mục seed_data/:
