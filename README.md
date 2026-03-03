@@ -23,6 +23,7 @@ py -m venv .venv
 
 pip install -r requirements.txt
 copy .env.example .env
+
 Bước 2 — Khởi tạo database (Flask-Migrate)
 
 Chỉ chạy db init 1 lần cho lần setup đầu tiên.
@@ -30,10 +31,13 @@ Chỉ chạy db init 1 lần cho lần setup đầu tiên.
 python -m flask --app run.py db init
 python -m flask --app run.py db migrate -m "init"
 python -m flask --app run.py db upgrade
+
 Bước 3 — Seed tài khoản từ Excel (GV + 70 HS)
 python -m flask --app run.py seed-users
+
 Bước 4 — Chạy ứng dụng
-python run.py
+python run.
+
 2) Seed tài khoản từ Excel
 
 Các file seed nằm trong thư mục seed_data/:
